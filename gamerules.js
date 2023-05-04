@@ -1,6 +1,3 @@
-const words = [
-];
-
 const size = 15;
 const grid = new Array(size);
 for (let i = 0; i < size; i++) {
@@ -14,8 +11,6 @@ function placeWord(word, x, y, dx, dy) {
     grid[iy][ix] = word[i];
   }
 }
-
-words.sort((a, b) => b.length - a.length);
 
 const firstWord = words[0];
 const startX = Math.floor(size / 2 - firstWord.length / 2);
