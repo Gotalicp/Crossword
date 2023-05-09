@@ -11,15 +11,6 @@ for (let i = 0; i < size; i++) {
 $(".grid").width(900/size);
 $(".grid").height(900/size);
 
-//places the words in place
-function placeWord(word, x, y, dx, dy) {
-  for (let i = 0; i < word.length; i++) {
-    const ix = x + i * dx;
-    const iy = y + i * dy;
-    grid[iy][ix] = word[i];
-  }
-}
-
 //getting and placing the first word in the middle
 // connection.query('SELECT word FROM entries ;WHERE CHAR_LENGTH(word) > 3 ;ORDER BY RAND(); LIMIT 1', (error, results, fields) => {
 //   if (error) throw error;
