@@ -1,17 +1,3 @@
-//connects sql to js
-// const mysql = require('mysql');
-// const connection = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'your_username',
-//   password: 'your_password',
-//   database: 'englsihdictionary'
-// });
-
-// connection.connect((err) => {
-//   if (err) throw err;
-//   console.log('Connected to MySQL database');
-// });
-
 //makes the grid and word arrays
 const words = new Array();
 const size = 15;
@@ -22,8 +8,8 @@ for (let i = 0; i < size; i++) {
     $("#container").append("<div class='grid'></div>");
   }
 }
-$(".grid").width(960/size);
-$(".grid").height(960/size);
+$(".grid").width(900/size);
+$(".grid").height(900/size);
 
 //places the words in place
 function placeWord(word, x, y, dx, dy) {
