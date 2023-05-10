@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const path = require('path');
 const mysql = require('mysql');
+var bodyParser = require('body-parser')
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -11,40 +12,22 @@ const connection = mysql.createConnection({
   database: 'entries'
 });
 
-// connection.connect(function(err){
-// connection.query('SELECT word FROM entries WHERE CHAR_LENGTH(word) > 3 ORDER BY RAND() LIMIT 1', (error, results) => {
-//       console.log(results);
-//     });
-//     connection.query('SELECT *', (error, results, fields) => {
-//         console.log(results);
-//       });/
-// });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
-function randomword(temp) {
-  let sql = 'SELECT word FROM entries WHERE word like '+temp+' ORDER BY RAND() LIMIT 1;';
-  return new Promise((resolve, reject) => {
-    connection.query(sql, (err, result) => {
-      if (err) {
-        reject(err);
-      }
-      else {
-        resolve(result);
-      }
-    });
-  });
-}
-
-app.get('/kur/:word', async (req, res) => {
-  // const word = await randomword();
-  console.log(req.params.word)
-  res.send("8===>");
+app.post('/word', async (req, res) => {
+  try {
+    const temp = Object.values(req.body)
+    console.log(temp + ' temp')
+    const query = 'SELECT * FROM entries WHERE word LIKE\''+temp+'\' ORDER BY RAND() LIMIT 1;'
+    const { row } = await connection.query(query);
+    console.log(row)
+    res.send(row);
+  } catch (err) {
+    console.error(err);
+  }
 })
 
-// app.get("/", async function(req, res) {
-//   const result = await randomword();
-//   res.send(result);
-//   console.log(randomword());
-// });
 
 app.use(express.static(path.join(__dirname,'views')))
 
