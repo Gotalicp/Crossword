@@ -20,8 +20,8 @@ const connection = mysql.createConnection({
 //       });/
 // });
 
-function randomword() {
-  let sql = 'SELECT word FROM entries WHERE CHAR_LENGTH(word) > 3 ORDER BY RAND() LIMIT 1;';
+function randomword(temp) {
+  let sql = 'SELECT word FROM entries WHERE word like '+temp+' ORDER BY RAND() LIMIT 1;';
   return new Promise((resolve, reject) => {
     connection.query(sql, (err, result) => {
       if (err) {
@@ -33,6 +33,12 @@ function randomword() {
     });
   });
 }
+
+app.get('/kur/:word', async (req, res) => {
+  // const word = await randomword();
+  console.log(req.params.word)
+  res.send("8===>");
+})
 
 // app.get("/", async function(req, res) {
 //   const result = await randomword();

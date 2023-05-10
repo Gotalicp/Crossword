@@ -1,5 +1,5 @@
 //makes the grid and word constructors
-function Word(firstx, firsty , rotation, word, clue){
+function Word(firstx, firsty , rotation){
   this.firstx = firstx;
   this.firsty = firsty;
   this.rotation = rotation;
@@ -17,9 +17,9 @@ function Grid(x, y, used , char){
 }
 
 //creating the arrays and grids
-const words = new Array();
+var words = [];
 const size = 15;
-const grids = new Array(size);
+var grids = new Array(size);
 for (let i = 0; i < size; i++) {
   grids[i] = new Array(size).fill('');
   for(let j =0 ;j < size ; j++){
@@ -36,25 +36,97 @@ function placeWord(index){
       var temp = 0;
         for(let i = words[index].firstx; i < words[index].firstx+size ;i++){
           grids[i][firsty].char = charArray[temp++];
+          grids[firstx][i].used = true;
+
         }
     break;
     case 2:
       var temp = 0;
         for(let i = words[index].firsty; i < words[index].firsty+size ;i++){
           grids[firstx][i].char = charArray[temp++];
+          grids[firstx][i].used = true;
         }
     break;
   }
 }
-function randomRotation(){
-  return Math.random() + 1;
-}
-function randomSize(){
-  return  Math.floor(Math.random() * 13) + 3;
-}
-function placeFirst(){
-words[0].firstx=0;
-words[0].firsty=0;
-words[0].rotation = 1;
 
+function randomNub(max){
+  return  Math.floor(Math.random() * max);
+}
+
+function checkIfUsed(index , indey){
+  try{
+    if(grid[index][indey].used == true){
+      return false
+    }else{
+      return true
+    }
+  }catch(err){
+    console.log('out of bounds');
+    return true
+  }
+}
+
+function checkIfPlaceable(r,index, indey){
+    switch(r){
+      case 1:
+        if(checkIfPlaceable(index - 1,indey) == true && checkIfPlaceable(index,indey - 1) == true && checkIfPlaceable(index,indey + 1) == true ){
+        return true;
+        }else{return false}
+      break;
+      case 2:
+        if(checkIfPlaceable(index - 1,indey) == true && checkIfPlaceable(index,indey - 1) == true && checkIfPlaceable(index+1,indey) == true ){
+          return true
+          }else{return false}
+      break;
+    }
+}
+
+function checkForSuitable(x ,y,r){
+  let temp = '';
+  switch(r){
+    case 1:
+    var index = randomSize((15-x)-3)+3;
+    for(let i = 0; i <index ; i++){
+      if(grid[x+i][y].char == null){
+        temp += '_'
+      }else{
+        temp+= grid[x+i][y].char
+      }    
+    }
+    break;
+    case 2:
+      var index = randomSize((15-y)-3)+3;
+      for(let i = 0; i <index ; i++){
+        if(grid[x][y+1].char == null){
+          temp += '_'
+        }else{
+          temp+= grid[x][y+1].char
+        }    
+      }
+    break
+  }
+  // if(==){
+  //   return false;
+  // }
+  words.push(Word(x,y,r,sql))
+}
+
+function generatePuzzle(){
+  for(let i = 0; i < size ; i++){
+    for(let j=0;j<size;j++){
+      for(let r=1;r<2;r++){
+        if(checkIfPlaceable(r, x ,y)){
+          if(checkForSuitable(i,j,r)!=false){
+
+          }
+        }
+      }
+    }
+  }
+}
+
+async function button() {
+  const res = await fetch(`/kur/duma`);
+  console.log(await res.text())
 }
