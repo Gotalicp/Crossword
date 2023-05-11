@@ -136,14 +136,16 @@ function checkForSuitable(x ,y,r){
 }
 
 async function search4Word(temp){
-  const data = {wordScript:temp}
+  try{  
   const res = await fetch(`/word`,{
     method: 'POST',
     headers: {
     'Content-Type': 'application/json'
   },
-  body: JSON.stringify(data)
-})
+  body: JSON.stringify(temp)
+})}catch(err){
+  console.error(error);
+}
 // .then(response => console.log(response))
 // .then(data =>{console.log(data)})
 }

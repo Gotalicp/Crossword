@@ -7,7 +7,7 @@ var bodyParser = require('body-parser')
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'Gotalic',
+  user: 'root',
   password: 'password',
   database: 'entries'
 });
@@ -17,17 +17,28 @@ app.use(express.urlencoded({ extended: true }))
 
 app.post('/word', async (req, res) => {
   try {
-    const temp = Object.values(req.body)
+    var temp = Object.values(req.body)
     console.log(temp + ' temp')
-    const query = 'SELECT * FROM entries WHERE word LIKE\''+temp+'\' ORDER BY RAND() LIMIT 1;'
-    const { row } = await connection.query(query);
-    console.log(row)
-    res.send(row);
+    const query = 'SELECT * FROM entries WHERE word LIKE\'_____\' ORDER BY RAND() LIMIT 1;'
+    const result  =  randomWord(query);
   } catch (err) {
     console.error(err);
   }
-})
+});
 
+function randomWord(sql) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      else {
+        console.log(result)
+        resolve(result);
+      }
+    });
+  });
+}
 
 app.use(express.static(path.join(__dirname,'views')))
 
