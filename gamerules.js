@@ -37,7 +37,7 @@ var grids = new Array(size);
 for (let i = 0; i < size; i++) {
   grids[i] = new Array(size).fill('');
   for(let j =0 ;j < size ; j++){
-    $("#container").append("<div class='grid'></div>");
+    $("#container").append( `<div id=${i+''+j}class='grid'></div>'`);
     grids[i][j] = new Grid(i,j,false,null)
   }
 }
