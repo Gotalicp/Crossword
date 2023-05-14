@@ -17,4 +17,7 @@
 	outline:1px solid #000;
 	display:inline-block;
     background-color: cyan;
+	font-size: 30px;
+  	color: black;
+  	text-align: center;
 }

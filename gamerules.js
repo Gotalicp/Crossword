@@ -1,177 +1,174 @@
-//makes the grid and word constructors
-// var words = [{
-//   firstx : '0',
-//   firsty : '0',
-//   rotation : '0',
-//   sql: '0',
-//   size: '0',
-//   charArray: '0',
-//   clue: '0',
-// }];
-// function Word(firstx, firsty , rotation, sql){
-//   this.firstx = firstx;
-//   this.firsty = firsty;
-//   this.rotation = rotation;
-//   this.sql = sql
-//   var charArray
-//   var size
-//   var clue
-// }
 function splitArray(sql){
-return String(sql).split(' ')
-}
-
-
-function Grid(x, y, used , char){
-  this.x = x;
-  this.y = y;
-  this.used = used;
-  this.char = char;
+  return String(sql).split(' ')
+  }
   
-}
-
-//creating the arrays and grids
-var words = [];
-const size = 15;
-var grids = new Array(size);
-for (let i = 0; i < size; i++) {
-  grids[i] = new Array(size).fill('');
-  for(let j =0 ;j < size ; j++){
-    $("#container").append( `<div id=${i+''+j}class='grid'></div>'`);
-    grids[i][j] = new Grid(i,j,false,null)
-  }
-}
-$(".grid").width(900/size);
-$(".grid").height(900/size);
-
-function indexWordChecker(){
-  let index = -1;
-  console.log(words)
-  words.forEach(function(){
-    index+=1
-  })
-  return index;
-}
-
-function placeWord(index){
-  switch(parseInt(words[index].rotation)){
-    case 2:
-      var temp = 0;
-        for(let i = words[index].firstx; i < words[index].firstx + words[index].charArray.length ;i++){
-          grids[i][words[index].firsty].char = words[index].charArray[temp++];
-          grids[i][words[index].firstx].used = true;
-
-        }
-    break;
-    case 1:
-      var temp = 0;
-        for(let i = words[index].firsty; i < words[index].firsty+size ;i++){
-          grids[words[index].firstx][i].char = words[index].charArray[temp++];
-          grids[words[index].firstx][i].used = true;
-        }
-    break;
-  }
-}
-
-function randomNub(max){
-  return  Math.floor(Math.random() * max);
-}
-
-function checkIfUsed(index , indey){
-  try{
-    if(grids[index][indey].used == true){
-      return false
-    }else{
-      return true
+  
+  //creating the arrays and grids
+  var words = [];
+  const size = 15;
+  const grids = [];
+  for (let i = 0; i < size; i++) {
+    grids[i] = [];
+    for(let j =0 ;j < size ; j++){
+      var tempId = i+""+j
+      $("#container").append(`<div id=${tempId} class='grid'></div>`);
+      grids[i][j] = {
+        row: i,
+        col: j,
+        used: false,
+        char: null
+      };
     }
-  }catch(err){
-    console.log('out of bounds');
-    return true
   }
-}
-
-function checkIfPlaceable(index, indey, r){
-    switch(r){
+  $(".grid").width(900/size);
+  $(".grid").height(900/size);
+  
+  function indexWordChecker(){
+    let index = -1;
+    words.forEach(function(){
+      index+=1
+    })
+    return index;
+  }
+  
+  async function placeWord(index){
+    switch(words[index].rotation){
       case 1:
-        if(checkIfUsed(index - 1,indey)){
-        return true;
-        }else{return false}
+        var temp = 0;
+          for(let i = words[index].firsty; i < words[index].firsty + words[index].charArray.length ;i++){
+            grids[words[index].firstx][i].char = words[index].charArray[temp++];
+            grids[words[index].firstx][i].used = true;
+            var idTemp = '#'+i+''+words[index].firsty
+            $(idTemp).html("<p>"+grids[words[index].firstx][i].char + "</p>");
+  
+          }
       break;
       case 2:
-        if(checkIfUsed(index,indey-1)){
-          return true
-          }else{return false}
+        var temp = 0;
+          for(let i = words[index].firstx; i < words[index].firstx + words[index].charArray.length ;i++){
+            grids[i][words[index].firsty].char = words[index].charArray[temp++];
+            grids[i][words[index].firsty].used = true;
+            var idTemp = '#'+words[index].firstx+''+i
+            $(idTemp).html('<p> ${grids[i][words[index].firsty].char} </p>');
+
+          }
       break;
     }
-}
-
-function checkForSuitable(x ,y,r){
-  let temp = '';
-  switch(r){
-    case 1:
-    var size = randomNub((15-x)-3)+3;
-    for(let i = 0; i <size ; i++){
-      if(grids[x+i][y].char == null){
-        temp += '_'
+  }
+  
+  function randomNub(max){
+    return  Math.floor(Math.random() * max);
+  }
+  
+  function checkIfUsed(index , indey){
+    try{
+      if(grids[index][indey].used==true){
+        return false
       }else{
-        temp+= grids[x+i][y].char
-      }    
+        return true
+      }
+    }catch(err){
+      console.log(err);
+      return true
     }
-    break;
-    case 2:
-      var index = randomNub((15-y)-3)+3;
+  }
+  
+  function checkIfPlaceable(index, indey, r){
+      switch(r){
+        case 1:
+          if(checkIfUsed(index -1 ,indey)==true && checkIfUsed(index,indey-1)==true){
+          return true;
+          }else{return false}
+        break;
+        case 2:
+          if(checkIfUsed(index-1,indey) == true && checkIfUsed(index +1 ,indey)==true && checkIfUsed(index,indey-1)==true){
+            return true
+            }else{return false}
+        break;
+      }
+  }
+  
+ async function checkForSuitable(x ,y,r){
+    let temp ='';
+    let values
+    switch(r){
+      case 1:
+      var size = randomNub((15-y)-3)+3;
       for(let i = 0; i <size ; i++){
-        if(grids[x][y+1].char == null){
+        console.log(i)
+        if(grids[x][y+i].char == null){
           temp += '_'
         }else{
-          temp+= grids[x][y+1].char
+          temp+= grids[x][y+i].char
         }    
       }
-    break
+      break;
+      case 2:
+        var index = randomNub((15-x)-3)+3;
+        for(let i = 0; i <size ; i++){
+          if(grids[x+i][y].char == null){
+            temp += '_'
+          }else{
+            temp+= grids[x+i][y].char
+          }    
+        }
+      break
+    }
+    values = await search4Word(temp)
+    console.log(values + ':values')
+    words.push({firstx:x,firsty:y,rotation:r,word:values, charArray:values.split('')})
+    await placeWord(indexWordChecker())
   }
-  let tempWord = search4Word(temp)
-  console.log(tempWord + ' tempword')
-  words.push({firstx:x,firsty:y,rotation:r,word:tempWord, charArray:splitArray(tempWord)})
-  placeWord(indexWordChecker())
-}
+  
+  async function search4Word(temp){
+      const theWord = await fetch(`/word`,{
+        method: 'POST',
+        headers: {
+        'Content-Type': 'text/plain'},
+        body: temp
+      })
+      return theWord.json();
+  }
 
-async function search4Word(temp){
-  try{  
-  const res = await fetch(`/word`,{
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(temp)
-})}catch(err){
-  console.error(error);
-}
-// .then(response => console.log(response))
-// .then(data =>{console.log(data)})
-}
-
-function makeBlacks(){
-  for(let i = 0; i < size; i++){
-    for(let j=0;j<size;j++){
-      if(grids[i][j].used == false){
-        $("grid").css("background-color", "black");
+  async function postTest(){
+    const temp = 'word'
+      const theWordo = await fetch(`/test`,{
+        method: 'POST',
+        headers: {
+        'Content-Type': 'text/plain'},
+        body: temp
+      })
+      console.log("theWordo")
+     console.log(theWordo)
+  }
+  
+  function makeBlacks(){
+    for(let i = 0; i < size; i++){
+      for(let j=0;j<size;j++){
+        if(grids[i][j].used == false){
+          $("grid").css("background-color", "black");
+        }
       }
     }
   }
-}
-function generatePuzzle(){
-  for(let i = 0; i < size-2 ; i++){
-    for(let j=0;j<size-2;j++){
-      for(let r=1;r<2;r++){
-        if(checkIfPlaceable(i ,j,r)){
-          if(checkForSuitable(i,j,r)!=false){
+
+  async function generatePuzzle(){
+    for(let i = 0; i < size ; i++){
+      for(let j=0;j<size;j++){
+        for(let r=1;r<2;r++){
+          if(checkIfPlaceable(i ,j,r)==true){
+            await checkForSuitable(i,j,r)
+            console.log(words)
           }
         }
       }
     }
+    makeBlacks();
   }
-  makeBlacks();
-}
-function button(){
-generatePuzzle();
-}
+  async function button(){
+    generatePuzzle();
+    // let tempWord = [{}]
+    // tempWord = await search4Word()
+    // console.log("tempWord") 
+    // console.log(tempWord)
+   } 
