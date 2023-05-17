@@ -10,7 +10,7 @@ function splitArray(sql){
   for (let i = 0; i < size; i++) {
     grids[i] = [];
     for(let j =0 ;j < size ; j++){
-      var tempId = i+""+j
+      var tempId = i+"-"+j
       $("#container").append(`<div id=${tempId} class='grid'></div>`);
       grids[i][j] = {
         row: i,
@@ -38,7 +38,7 @@ function splitArray(sql){
           for(let i = words[index].firsty; i < words[index].firsty + words[index].charArray.length ;i++){
             grids[words[index].firstx][i].char = words[index].charArray[temp++];
             grids[words[index].firstx][i].used = true;
-            var idTemp = '#'+words[index].firstx+''+i
+            var idTemp = '#'+words[index].firstx+'-'+i
             $(idTemp).html("<p>"+grids[words[index].firstx][i].char + "</p>");
             $(idTemp).css("background-color", "white");
   
@@ -48,7 +48,7 @@ function splitArray(sql){
           for(let i = words[index].firstx; i < words[index].firstx + words[index].charArray.length ;i++){
             grids[i][words[index].firsty].char = words[index].charArray[temp++];
             grids[i][words[index].firsty].used = true;
-            var idTemp = '#'+i+''+words[index].firsty
+            var idTemp = '#'+i+'-'+words[index].firsty
             $(idTemp).html("<p>" +grids[i][words[index].firsty].char + "</p>");
             $(idTemp).css("background-color", "white");
 
@@ -121,7 +121,7 @@ function splitArray(sql){
   
  async function checkForSuitable(x ,y,r){
     let temp ='';
-    let values
+    let TempWord
     switch(r){
       case 0:
         var indexSize = randomNub(15-y);
@@ -146,11 +146,16 @@ function splitArray(sql){
         console.log(temp)
       break;
     }
-    values = await search4Word(temp)
-    if(values!=null){
-        words.push({firstx:x,firsty:y,rotation:r,word:values, charArray:values.split('')})
+  }
+
+  async function checkWordUsability(){
+    TempWord = await search4Word(temp)
+        words.push({firstx:x,firsty:y,rotation:r,word:TempWord, charArray:TempWord.split('')})
         await placeWord(indexWordChecker())
-    }
+  }
+
+  function checkWordUsability(x,y,r,word){
+
   }
 
   async function search4Word(temp){
