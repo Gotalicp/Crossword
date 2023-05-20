@@ -3,7 +3,8 @@ const app = express();
 const port = 3000;
 const path = require('path');
 const mysql = require('mysql');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+const { re } = require('mathjs');
 var router = express.Router()
 
 app.use(express.json());
@@ -32,7 +33,10 @@ function randomWord(sql) {
       if (error) {
         return console.error(error.message);
       }
-      resolve(JSON.stringify(results[0].word));
+      var json =  JSON.parse(JSON.stringify(results));
+      console.log(results)
+      console.log(json[0].word)
+      resolve(json[0].word);
     })
   })
 }
@@ -40,7 +44,7 @@ function randomWord(sql) {
 app.post('/word', async (req, res) => {
   return new Promise((resolve, reject) => {
     var temp = req.body
-    const query = 'SELECT word FROM entries WHERE word LIKE \''+temp+'\' ORDER BY RAND() LIMIT 1;'
+    const query = 'SELECT * FROM entries WHERE word LIKE \''+temp+'\' ORDER BY RAND() LIMIT 1;'
     randomWord(query).then((results)=>{
     res.send(results)
     resolve(results)
