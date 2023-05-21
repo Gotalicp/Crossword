@@ -1,12 +1,15 @@
 #container {
 	position: relative;
 	top: 30px;
-	outline:2px solid #000;
+	outline:1px solid #000;
 	margin:auto;
 	height:900px;
 	width:900px;
 	padding: 0;
 	border: none;
+	box-sizing: content-box;
+	display: flex;
+  	flex-wrap: wrap;
 }
 
 .grid {
@@ -14,16 +17,9 @@
 	padding:0;
 	border:none;
 	outline:1px solid #000;
+	background-color: #000;
 	display:inline-block;
-    background-color: black;
-	text-align: center 
-}
-
-.text{
+	position: absolute;
 	font-size: 20px;
-	display: flex;
-	align-items: center;
 	text-align: center;
-	margin-left: auto;
-    margin-right: auto;
 }

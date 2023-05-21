@@ -6,6 +6,7 @@ for (let i = 0; i < size; i++) {
   for (let j = 0; j < size; j++) {
       var tempId = i + "-" + j
       $("#container").append(`<div style="" id=${tempId} class='grid'></div>`);
+      $('#'+tempId).css({top:i*(900/size)+'px',left:j*(900/size)+'px'})
       grids[i][j] = {
           row: i,
           col: j,
@@ -35,7 +36,7 @@ async function placeWord(index) {
               grids[words[index].firstx][i].usedX = true;
               grids[words[index].firstx+1][i].usedX = true;
               var idTemp = '#' + words[index].firstx + '-' + i
-              $(idTemp).html('<p class="text">' + grids[words[index].firstx][i].char + '</p>');
+              $(idTemp).text(grids[words[index].firstx][i].char.toUpperCase());
               $(idTemp).css("background-color", "white");
           }
           grids[words[index].firstx][words[index].firsty].usedX = false;
@@ -47,7 +48,7 @@ async function placeWord(index) {
               grids[i][words[index].firsty].usedY = true;
               grids[i][words[index].firsty+1].usedY = true;
               var idTemp = '#' + i + '-' + words[index].firsty
-              $(idTemp).html('<p class="text">' + grids[i][words[index].firsty].char +'</p>');
+              $(idTemp).text(grids[i][words[index].firsty].char.toUpperCase());
               $(idTemp).css("background-color", "white");
           }
           grids[words[index].firstx][words[index].firsty].usedY = false;
