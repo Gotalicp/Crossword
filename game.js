@@ -5,177 +5,172 @@ const Rotation = {
     Horizontal: 0,
     Vertical: 1
 }
+
 var possibleSize = [];
-init()
 
-function getRandomFromList(numberList) {
-    if (numberList.length === 0) {
-        return null;
-    }
-  return numberList[Math.floor(Math.random() * numberList.length)];
-}
-
-function init(){
-    for (let i = 0; i < size; i++) {
-        grids[i] = [];
-        for (let j = 0; j < size; j++) {
-            var tempId = i + "-" + j
-            $("#container").append(`<div style="" id=${tempId} class='grid'></div>`);
-            $('#'+tempId).css({top:i*(900/size)+'px',left:j*(900/size)+'px'})
-            grids[i][j] = {
-              char: null
-            }
+for (let i = 0; i < size; i++) {
+    grids[i] = [];
+    for (let j = 0; j < size; j++) {
+        var tempId = i + "-" + j
+        $("#container").append(`<div style="" id=${tempId} class='grid'></div>`);
+        $('#' + tempId).css({ top: i * (900 / size) + 'px', left: j * (900 / size) + 'px' })
+        grids[i][j] = {
+            char: null
         }
     }
-    $(".grid").width(900 / size);
-    $(".grid").height(900 / size);
 }
+$(".grid").width(900 / size);
+$(".grid").height(900 / size);
 
-
-async function getWord(x,y,r,req) {
-    try{
-        var temp = await search4Word(req)
-        words.push({
-            position:{x,y,r},
-            word:temp,
-            chars:temp.split('')
-        })
-        await placeWord(indexWordChecker())
-        return temp
-    }catch(err){
-    console.log(err)
+function getRandomFromList() {
+    if (possibleSize.length === 0) {
+        return null;
     }
+    return possibleSize[Math.floor(Math.random() * possibleSize.length)];
 }
-async function search4Word(temp) {
-    var returnWord;
-        const theWord = await fetch(`/word`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: temp
-        })
+
+async function search4Word(x, y, r, temp) {
+    const theWord = await fetch(`/word`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain'
+        },
+        body: temp
+    })
         .then(response => response.text())
         .then((response) => {
             console.log(response)
-            returnWord=response
+            words.push({
+                possition: { x, y, r },
+                word: response,
+                chars: response.split('')
+            })
+            placeWord(words[words.length - 1])
         })
         .catch(err => {
-          console.log(err)
-          return null
+            console.log(err)
         })
-        return returnWord;
 }
-async function placeWord() {
+function placeWord(word) {
     var temp = 0;
-    word = words[lastIndexOf(words)]
-    switch (word.Rotation) {
-        case Rotation.Vertical:
-            for (let i = word.position.y; i < word.position.y + word.charArray.length; i++) {
-                grids[word.position.x][i].char = word.charArray[temp++];
-                var idTemp = '#' + word.position.x + '-' + i
-                $(idTemp).text(grids[word.position.x][i].char.toUpperCase());
-                $(idTemp).css("background-color", "white");
-            }
-        break;
+    console.log(word)
+    switch (word.possition.r) {
         case Rotation.Horizontal:
-            for (let i = word.position.x; i < word.position.x + word.charArray.length; i++) {
-                grids[i][word.possition.y].char = word.charArray[temp++];
-                var idTemp = '#' + i + '-' + word.possition.y
-                $(idTemp).text(grids[i][word.position.y].char.toUpperCase());
-                $(idTemp).css("background-color", "white");
+            for (var i = word.possition.y; i < word.possition.y + word.chars.length; i++) {
+                grids[word.possition.x][i].char = word.chars[temp++];
+                $(`#${word.possition.x}-${i}`).text(grids[word.possition.x][i].char.toUpperCase());
+                $(`#${word.possition.x}-${i}`).css("background-color", "white");
             }
-        break;
+            break;
+        case Rotation.Vertical:
+            for (var i = word.possition.x; i < word.possition.x + word.chars.length; i++) {
+                grids[i][word.possition.y].char = word.chars[temp++];
+                $(`#${i}-${word.possition.y}`).text(grids[i][word.possition.y].char.toUpperCase());
+                $(`#${i}-${word.possition.y}`).css("background-color", "white");
+            }
+            break;
     }
 }
 
-function startAbleX(x,y){
-    try {
-        if(grids[x-1][y].char!=null && grids[x+1][y-1].char!=null){
-            return true 
-        }
-    }catch{
-        console.log("out of bounds")
-        return true    
+function startAbleX(x, y) {
+    var hasCharAbove = y > 0 && grids[x][y - 1].char !== ''
+    var hasCharOnLeft = x > 0 && grids[x - 1][y].char !== '' 
+    if (hasCharAbove || hasCharOnLeft) {
+        return false;
     }
-    return false
+    return true;
 }
-function startAbleY(x,y){
-    try {
-        if(grids[x][y-1].char!=null && grids[x-1][1+y].char!=null){
-            return true
-        }
-    }catch{
-        console.log("out of bounds")
-        return true
+function startAbleY(x, y) {
+    var hasCharAbove = y > 0 && grids[x][y - 1].char !== ''
+    var hasCharToLeftOfBelow = y < size - 1 && x > 0 && grids[x - 1][y + 1].char !== ''
+    if (hasCharAbove || hasCharToLeftOfBelow) {
+        return false
     }
-    return false
+    return true
 }
 async function checkForSuitable(x, y, r) {
     possibleSize = possibleSize.filter(num => num > 3);
-    if(possibleSize.length == 0){ 
+    if (possibleSize.length == 0) {
         return null
     }
-    let temp = '';
+    var tempWord = '';
     var size = getRandomFromList()
     switch (r) {
         case Rotation.Horizontal:
-            console.log('indexSize'+size)
-            for (let i = y; i < y+size; i++) {
-              console.log(i)
+            console.log('indexSize' + size)
+            for (let i = y; i < y + size; i++) {
+                console.log(i)
                 if (grids[x][i].char == null) {
-                    temp += '_'
+                    tempWord += '_'
                 } else {
-                    temp += grids[x][i].char
+                    tempWord += grids[x][i].char
                 }
             }
-            console.log(temp)
-            console.log(await getWord(x,y,r,temp))
+            console.log(tempWord)
+            await search4Word(x, y, r, tempWord)
             break;
         case Rotation.Vertical:
             for (let i = x; i < x + size; i++) {
                 if (grids[i][y].char == null) {
-                    temp += '_'
+                    tempWord += '_'
                 } else {
-                    temp += grids[i][y].char
+                    tempWord += grids[i][y].char
                 }
             }
-            console.log(temp)
-            console.log (await getWord(x,y,r,temp))
+            console.log(tempWord)
+            await search4Word(x, y, r, tempWord)
             break;
     }
 }
 
-function generateSize(x,y,r){
-    switch(r){
+function generateSize(x, y, r) {
+    switch (r) {
         case Rotation.Horizontal:
-            if(startAbleX(x,y)==true){
-                for(let i = x; i < size-x; i ++){
-                    if(grids[i][y-1].char!=null && grids[i+1][y].char!=null){
-                        possibleSize.push(-1*(x-(i+1)))
+            if (startAbleX(x, y)) {
+                for (let i = x; i < size - x; i++) {
+                    var hasCharAbove = !x === 0 && grids[x - 1][y].char !== ''
+                    var hasCharOnLeft = !y === 0 && grids[x][y - 1] !== ''
+                    if (hasCharAbove && hasCharOnLeft) {
+                    } else if (!hasCharAbove && x === 0) {
+                        possibleSize.push(-1 * (x - (i + 1)))
+                    } else if (!hasCharOnLeft && y === 0) {
+                        possibleSize.push(-1 * (x - (i + 1)))
+                    } else {
+                        possibleSize.push(-1 * (x - (i + 1)))
                     }
                 }
             }
-        break;
+            break;
         case Rotation.Vertical:
-            if(startAbleY(x,y)==true){
-                for(let i = y; i < size-y; i ++){
-                    if(grids[i][y-1].char!=null && grids[i+1][y].char!=null){
-                        possibleSize.push(-1*(x-(i+1)))
+            if (startAbleY(x, y)) {
+                for (let i = y; i < size - y; i++) {
+                    var hasCharAbove = !x === 0 && grids[x - 1][y].char !== ''
+                    var hasCharOnLeft = !y === 0 && grids[x][y - 1] !== ''
+                    if (hasCharAbove && hasCharOnLeft) {
+                    } else if (!hasCharAbove && x === 0) {
+                        possibleSize.push(-1 * (x - (i + 1)))
+                    } else if (!hasCharOnLeft && y === 0) {
+                        possibleSize.push(-1 * (x - (i + 1)))
+                    } else {
+                        possibleSize.push(-1 * (x - (i + 1)))
                     }
                 }
             }
-        break;
+            break;
     }
+    console.log(`${possibleSize} is possible`)
 }
 
 async function generatePuzzle() {
     for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
             for (let r = 0; r < 2; r++) {
-                possibleSize=null
-                generateSize()
-                placeWord()
+                console.log("x:" + j + " y:" + i + " r:" + r)
+                possibleSize = []
+                console.log('getting size')
+                generateSize(j, i, r)
+                console.log('generating word')
+                await checkForSuitable(j, i, r)
             }
         }
     }
