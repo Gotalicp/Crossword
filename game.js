@@ -6,6 +6,7 @@ const Rotation = {
     Vertical: 1
 }
 
+
 var possibleSize = [];
 
 for (let x = 0; x < size; x++) {
@@ -39,9 +40,7 @@ async function search4Word(x, y, r, temp) {
     })
         .then(response => response.text())
         .then((response) => {
-            if (response.length === 0 && possibleSize.length !== 0) {
-                return false
-            } else {
+            if (response.length !== 0) {
                 console.log(response)
                 words.push({
                     possition: { x, y, r },
@@ -107,11 +106,10 @@ async function checkForSuitable(x, y, r) {
         return null
     }
     var tempWord = '';
-    var int = getRandomFromList()
-    console.log("wordsize:" + possibleSize[int])
+    var index = getRandomFromList()
     switch (r) {
         case Rotation.Vertical:
-            for (let i = y; i < possibleSize[int]; i++) {
+            for (let i = y; i < possibleSize[index]; i++) {
                 if (grids[x][i].char === null) {
                     tempWord += '_'
                 } else {
@@ -120,7 +118,7 @@ async function checkForSuitable(x, y, r) {
             }
             break;
         case Rotation.Horizontal:
-            for (let i = x; i < x + possibleSize[int]; i++) {
+            for (let i = x; i < x + possibleSize[index]; i++) {
                 if (grids[i][y].char == null) {
                     tempWord += '_'
                 } else {
@@ -129,10 +127,11 @@ async function checkForSuitable(x, y, r) {
             }
             break;
     }
-    possibleSize.splice(int, 1)
+    possibleSize.splice(index, 1)
     if (await search4Word(x, y, r, tempWord) === false) {
-        await checkForSuitable(x, y, r)
+        return 0
     }
+    return 1
 }
 
 async function generateSize(x, y, r) {
@@ -144,11 +143,12 @@ async function generateSize(x, y, r) {
     switch (r) {
         case Rotation.Horizontal:
             if (startAbleX(x, y)) {
-                for (let i = x + 1; i < size - x; i++) {
+                for (let i = x + 1; i < size; i++) {
                     hasCharAbove = y > 0 && grids[i][y - 1].char !== null
                     hasCharOnCurrent = grids[i][y].char !== null
                     hasCharLeft = i > 0 && grids[i - 1][y].char !== null
                     hasCharRight = i < size - 1 && grids[i + 1][y].char !== null
+                    console.log("hasCharAbove: " + hasCharAbove + " hasCharOnCurrent: " + hasCharOnCurrent + " hasCharLeft: " +hasCharLeft + " hasCharRight: "+ hasCharRight)
                     if (hasCharOnCurrent) {
                         possibleSize.push(-1 * (x - (i + 1)))
                     } else if (hasCharAbove) {
@@ -163,14 +163,15 @@ async function generateSize(x, y, r) {
             break
         case Rotation.Vertical:
             if (startAbleY(x, y)) {
-                for (let i = (y + 1); i < size - y; i++) {
+                for (let i = (y + 1); i < size; i++) {
                     hasCharAbove = i > 0 && grids[x][i - 1].char !== null
                     hasCharBelow = i < size - 1 && grids[x][i + 1].char !== null
                     hasCharLeft = x > 0 && grids[x - 1][i].char !== null
+                    hasCharRight = x < size - 1 && grids[x + 1][i].char !== null
                     hasCharOnCurrent = grids[x][i].char !== null
                     if (hasCharOnCurrent) {
                         possibleSize.push(-1 * (y - (i + 1)))
-                    } else if (hasCharLeft) {
+                    } else if (hasCharLeft || hasCharRight) {
                         break
                     } else if (!hasCharAbove == !hasCharBelow) {
                         possibleSize.push(-1 * (y - (i + 1)))
@@ -181,7 +182,7 @@ async function generateSize(x, y, r) {
             }
             break
     }
-    possibleSize = possibleSize.filter(num => num >= 3 && num <= 10);
+    possibleSize = possibleSize.filter(num => num > 3 && num < 10);
     return (possibleSize.length > 0)
 }
 
@@ -193,9 +194,10 @@ async function generatePuzzle() {
                 possibleSize = []
                 console.log('getting size')
                 if (await generateSize(x, y, r)) {
-                    console.log(`${possibleSize} is possible`)
                     console.log('generating word')
-                    await checkForSuitable(x, y, r)
+                    while(possibleSize.length != 0){
+                        await checkForSuitable(x, y, r) == 0
+                    }
                 }
             }
         }
